@@ -30,8 +30,8 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        // Don't require auth on the registration endpoint itself
-        if (path.startsWith("/v1/organizations")) {
+// Don't require auth on the registration endpoint or health checks
+        if (path.startsWith("/v1/organizations") || path.startsWith("/health")) {
             filterChain.doFilter(request, response);
             return;
         }
