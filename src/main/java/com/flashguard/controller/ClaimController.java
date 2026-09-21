@@ -5,6 +5,7 @@ import com.flashguard.dto.CreateClaimRequest;
 import com.flashguard.entity.Claim;
 import com.flashguard.entity.Drop;
 import com.flashguard.entity.Organization;
+import com.flashguard.service.ClaimPersistenceException;
 import com.flashguard.service.ClaimService;
 import com.flashguard.service.DropNotFoundException;
 import com.flashguard.service.DropService;
@@ -40,6 +41,10 @@ public class ClaimController {
             return ResponseEntity.ok(new ClaimResponse(claim.getStatus(), claim.getId()));
         } catch (DropNotFoundException e) {
             return ResponseEntity.status(404).body(e.getMessage());
+        } catch (ClaimPersistenceException e) {
+            return ResponseEntity.status(500).body("Claim outcome could not be confirmed. Please retry or contact support.");
         }
+
+
     }
 }
