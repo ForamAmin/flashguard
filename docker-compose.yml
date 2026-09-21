@@ -1,5 +1,4 @@
 services:
-
   redis:
     image: redis:7.4-alpine
     container_name: flashguard-redis
@@ -32,6 +31,24 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+  app:
+    build: .
+    container_name: flashguard-app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
 volumes:
   flashguard_redis_data:
