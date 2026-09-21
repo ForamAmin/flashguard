@@ -53,4 +53,8 @@ public class InventoryService {
     public enum ClaimResult {
         SUCCESS, SOLD_OUT, INVENTORY_NOT_INITIALIZED
     }
+    public int getCurrentInventory(UUID dropId) {
+        String value = redisTemplate.opsForValue().get(inventoryKey(dropId));
+        return value != null ? Integer.parseInt(value) : 0;
+    }
 }

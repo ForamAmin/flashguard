@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FlashGuard — overselling-proof claim engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Ruwudu:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-page="home">
+
+<nav class="nav">
+  <div class="nav__brand"><span class="bolt">⚡</span> FlashGuard</div>
+  <div class="nav__links">
+    <a href="index.html" data-page="home">Home</a>
+    <a href="about.html" data-page="about">How it works</a>
+    <a href="live.html" data-page="live">Live drops</a>
+  </div>
+</nav>
+
+<main class="page">
+
+  <section class="hero">
+    <div>
+      <div class="hero__eyebrow-line">100 slots. 10,000 requests. Exactly 100 winners.</div>
+      <h1>An overselling-proof claim engine for limited-slot drops.</h1>
+      <p class="lede">
+        When a flash sale or a limited ticket drop goes live, thousands of requests
+        can hit the same inventory in the same instant. FlashGuard makes it structurally
+        impossible to hand out more slots than exist — proven under real concurrent load,
+        not just designed to.
+      </p>
+      <div class="hero__ctas">
+        <a href="live.html"><button class="btn btn--primary">Watch it work live</button></a>
+        <a href="about.html"><button class="btn btn--ghost">See how it's built</button></a>
+      </div>
+    </div>
+
+    <div class="glass hero__stat">
+      <div class="figure">100 / 100</div>
+      <div class="label">successful claims out of 10,000 concurrent attempts against 100 slots — zero overselling</div>
+    </div>
+  </section>
+
+  <section class="split">
+    <div class="glass">
+      <h3>Atomic by design</h3>
+      <p>A single Redis Lua script checks and decrements inventory as one indivisible operation, so no two concurrent requests can ever race each other.</p>
+    </div>
+    <div class="glass">
+      <h3>Fully auditable</h3>
+      <p>Every claim attempt — successful or rejected — is written to Postgres, giving a durable record for rejection-rate and throughput reporting.</p>
+    </div>
+    <div class="glass">
+      <h3>Multi-tenant from day one</h3>
+      <p>Every organization gets its own API key and its own isolated drops. One tenant can never see or claim against another's inventory.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">Built with Spring Boot, PostgreSQL, and Redis. Load tested with k6.</footer>
+
+<script src="shared.js"></script>
+</body>
+</html>

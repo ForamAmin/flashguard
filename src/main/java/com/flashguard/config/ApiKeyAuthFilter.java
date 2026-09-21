@@ -25,12 +25,21 @@ public class ApiKeyAuthFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain)
             throws ServletException, IOException {
 
         String path = request.getRequestURI();
 
-// Don't require auth on the registration endpoint or health checks
+        // Allow CORS preflight requests
+        if (request.getMethod().equalsIgnoreCase("OPTIONS")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // Don't require auth on registration endpoint or health checks
         if (path.startsWith("/v1/organizations") || path.startsWith("/health")) {
             filterChain.doFilter(request, response);
             return;

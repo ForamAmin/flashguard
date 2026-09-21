@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live drops — FlashGuard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Ruwudu:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-page="live">
+
+<nav class="nav">
+  <div class="nav__brand"><span class="bolt">⚡</span> FlashGuard</div>
+  <div class="nav__links">
+    <a href="index.html" data-page="home">Home</a>
+    <a href="about.html" data-page="about">How it works</a>
+    <a href="live.html" data-page="live">Live drops</a>
+  </div>
+</nav>
+
+<main class="page">
+  <h1 style="font-size: 2.1rem;">Live drops</h1>
+  <p style="margin-bottom: 32px;">Create a drop, then fire concurrent claims at it and watch the count race to zero — exactly, never past it.</p>
+
+  <div class="live-layout">
+
+    <!-- Left column: setup -->
+    <div>
+      <div class="glass panel">
+        <h3>API key</h3>
+        <div class="field">
+          <label for="apiKey">Organization key</label>
+          <input id="apiKey" placeholder="fg_live_...">
+          <div class="hint">Kept only in this browser tab's memory for this demo. A real integration keeps this server-side, never in front-end code.</div>
+        </div>
+      </div>
+
+      <div class="glass panel">
+        <h3>Create a drop</h3>
+        <div class="field">
+          <label for="dropName">Drop name</label>
+          <input id="dropName" placeholder="e.g. VIP Pass">
+        </div>
+        <div class="field">
+          <label for="dropInventory">Total inventory</label>
+          <input id="dropInventory" type="number" placeholder="e.g. 20">
+        </div>
+        <button class="btn btn--primary" id="createDropBtn" style="width:100%;">Create drop</button>
+        <div class="status-line" id="createStatus"></div>
+      </div>
+    </div>
+
+    <!-- Right column: live view -->
+    <div id="dropPanel" style="display:none;">
+      <div class="glass counter-card">
+        <div class="remaining" id="remaining">–</div>
+        <div class="of-total" id="ofTotal">of – remaining</div>
+      </div>
+
+      <div class="glass panel">
+        <h3>Manual claim</h3>
+        <p style="margin-bottom: 12px;">Claim one slot as a single customer.</p>
+        <button class="btn btn--ghost" id="claimOneBtn">Claim 1 slot</button>
+      </div>
+
+      <div class="glass panel">
+        <h3>Simulate concurrent claims</h3>
+        <p style="margin-bottom: 4px;">Fires many claims at once — the same scenario a real flash-sale spike creates.</p>
+        <div class="burst-row">
+          <div class="field">
+            <label for="burstCount">Number of simultaneous claims</label>
+            <input id="burstCount" type="number" value="50">
+          </div>
+          <button class="btn btn--primary" id="burstBtn">Fire burst</button>
+        </div>
+        <div class="status-line" id="burstStatus"></div>
+      </div>
+
+      <div class="glass log" id="log">
+        <div class="log-empty">No claims yet — try a manual claim or a burst above.</div>
+      </div>
+    </div>
+
+    <div id="emptyState" class="glass panel" style="grid-column: 2;">
+      <p style="margin:0;">Create a drop on the left to see it live here.</p>
+    </div>
+
+  </div>
+</main>
+
+<footer class="footer">Built with Spring Boot, PostgreSQL, and Redis. Load tested with k6.</footer>
+
+<script src="shared.js"></script>
+<script src="live.js"></script>
+</body>
+</html>

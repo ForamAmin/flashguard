@@ -8,6 +8,7 @@ public record DropResponse(
         UUID id,
         String name,
         Integer totalInventory,
+        Integer remainingInventory,
         DropStatus status,
         Instant createdAt
 ) {

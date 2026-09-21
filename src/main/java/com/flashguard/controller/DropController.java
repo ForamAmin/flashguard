@@ -6,6 +6,7 @@ import com.flashguard.entity.Drop;
 import com.flashguard.entity.Organization;
 import com.flashguard.service.DropNotFoundException;
 import com.flashguard.service.DropService;
+import com.flashguard.service.InventoryService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +19,11 @@ import java.util.UUID;
 public class DropController {
 
     private final DropService dropService;
+    private final InventoryService inventoryService;
 
-    public DropController(DropService dropService) {
+    public DropController(DropService dropService, InventoryService inventoryService) {
         this.dropService = dropService;
+        this.inventoryService = inventoryService;
     }
 
     @PostMapping
@@ -47,6 +50,7 @@ public class DropController {
                 drop.getId(),
                 drop.getName(),
                 drop.getTotalInventory(),
+                inventoryService.getCurrentInventory(drop.getId()),
                 drop.getStatus(),
                 drop.getCreatedAt()
         );

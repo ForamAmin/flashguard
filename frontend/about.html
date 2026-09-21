@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How FlashGuard works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Ruwudu:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-page="about">
+
+<nav class="nav">
+  <div class="nav__brand"><span class="bolt">⚡</span> FlashGuard</div>
+  <div class="nav__links">
+    <a href="index.html" data-page="home">Home</a>
+    <a href="about.html" data-page="about">How it works</a>
+    <a href="live.html" data-page="live">Live drops</a>
+  </div>
+</nav>
+
+<main class="page page--narrow">
+
+  <section class="section">
+    <h1>What FlashGuard actually is</h1>
+    <p>
+      FlashGuard is not a ticketing platform. It's infrastructure a real platform integrates
+      for one specific moment: the instant a limited number of slots go live and everyone tries
+      to claim one at once. The integrating platform — we call it "Jalsa" throughout this
+      project — keeps its own users, payments, and order flow. FlashGuard owns exactly one
+      thing, correctly: who gets a slot, and who doesn't, under real concurrent load.
+    </p>
+  </section>
+
+  <section class="section">
+    <h2>Who owns what</h2>
+    <div class="glass ownership">
+      <div>
+        <h4>FlashGuard owns</h4>
+        <ul>
+          <li>Organizations and API credentials</li>
+          <li>Drops — the limited-slot inventory itself</li>
+          <li>Claim concurrency and correctness</li>
+          <li>The full claim audit trail</li>
+          <li>Overselling prevention</li>
+        </ul>
+      </div>
+      <div>
+        <h4>The integrating platform owns</h4>
+        <ul>
+          <li>End customers and their accounts</li>
+          <li>The website and checkout experience</li>
+          <li>Payments and order processing</li>
+          <li>Ticket delivery and notifications</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>The problem, in one line</h2>
+    <p>
+      Checking "is inventory above zero" and then decrementing it are two separate steps.
+      Under concurrency, two requests can both check, both see room, and both decrement —
+      selling more than exists. This isn't rare under real load; it's the default outcome
+      of doing it naively.
+    </p>
+    <p>
+      FlashGuard closes that gap by making the check and the decrement a single, indivisible
+      operation inside Redis — there's no gap in the middle for a second request to slip through.
+    </p>
+  </section>
+
+  <section class="section">
+    <h2>Architecture</h2>
+    <div class="glass diagram">Users (thousands, concurrent)
+        │
+        ▼
+Jalsa's backend  ──  <span class="hi">Authorization: Bearer &lt;API key&gt;</span>
+        │
+        ▼
+┌─────────────────────────────────────┐
+│              FlashGuard              │
+│                                       │
+│   API-key auth + ownership checks    │
+│                  │                   │
+│                  ▼                   │
+│             Claim Engine             │
+└──────────────┬───────────┬───────────┘
+               │           │
+               ▼           ▼
+        <span class="hi">Redis</span>              PostgreSQL
+   hot inventory,      durable record:
+   atomic claim         orgs, drops,
+   (Lua script)         claims
+               │           │
+               └─────┬─────┘
+                     ▼
+          SUCCESS / SOLD_OUT
+        returned immediately</div>
+  </section>
+
+  <section class="section">
+    <h2>What happens when you press "Claim"</h2>
+    <div class="glass" style="padding: 8px 26px;">
+      <div class="steps">
+        <div class="step">
+          <div class="n">01</div>
+          <div><h4>Authenticate</h4><p>The request's API key is hashed and matched to an organization. No raw key is ever stored — only its hash.</p></div>
+        </div>
+        <div class="step">
+          <div class="n">02</div>
+          <div><h4>Confirm ownership</h4><p>The drop being claimed is checked against the calling organization. A mismatch returns the same "not found" response a nonexistent drop would — never confirming another tenant's data exists.</p></div>
+        </div>
+        <div class="step">
+          <div class="n">03</div>
+          <div><h4>Ask Redis, atomically</h4><p>A Lua script checks the live counter and decrements it in one indivisible step. This is the only place concurrency is actually resolved.</p></div>
+        </div>
+        <div class="step">
+          <div class="n">04</div>
+          <div><h4>Record the outcome</h4><p>Whether the claim succeeded or the drop was already sold out, a record is written to Postgres — the durable audit trail behind every rejection-rate and throughput number.</p></div>
+        </div>
+        <div class="step">
+          <div class="n">05</div>
+          <div><h4>Respond immediately</h4><p>SUCCESS or SOLD_OUT is returned synchronously — no polling, no waiting.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Proven, not assumed</h2>
+    <p>
+      This behavior was load tested with k6: 200 concurrent virtual users firing 10,000
+      claim requests at a drop configured with exactly 100 slots. Result: exactly 100
+      successful claims, 9,900 correctly rejected, and Redis inventory landing on zero —
+      never negative. See it happen in real time on the
+      <a href="live.html" style="color: var(--accent); text-decoration: underline;">live drops page</a>.
+    </p>
+  </section>
+
+</main>
+
+<footer class="footer">Built with Spring Boot, PostgreSQL, and Redis. Load tested with k6.</footer>
+
+<script src="shared.js"></script>
+</body>
+</html>
